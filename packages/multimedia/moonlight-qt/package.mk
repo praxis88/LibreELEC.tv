@@ -128,11 +128,10 @@ EOF
   # CEC listener: power off board when TV sends standby broadcast
   cat > "${INSTALL}/usr/bin/cec-listen" << 'EOF'
 #!/bin/sh
-# Listen for CEC standby broadcast from TV and suspend the board.
-# Uses cec-ctl from v4l-utils (kernel CEC interface, no libcec needed).
-cec-ctl -d /dev/cec0 --monitor-all 2>/dev/null | while IFS= read -r line; do
+cec-ctl -d /dev/cec0 --playback >/dev/null 2>&1
+cec-ctl -d /dev/cec0 --monitor 2>/dev/null | while IFS= read -r line; do
     case "$line" in
-        *"CEC_MSG_STANDBY"*)
+        *"STANDBY"*)
             logger -t cec-listen "TV standby received, suspending"
             systemctl suspend
             ;;
