@@ -124,4 +124,38 @@ EOF
   mkdir -p "${INSTALL}/usr/lib/systemd/system/multi-user.target.wants"
   ln -sf ../moonlight-qt.service \
     "${INSTALL}/usr/lib/systemd/system/multi-user.target.wants/moonlight-qt.service"
+
+  # CEC listener: power off board when TV sends standby broadcast
+  cat > "${INSTALL}/usr/bin/cec-listen" << 'EOF'
+#!/bin/sh
+# Listen for CEC standby broadcast (0f:36) from TV and power off the board
+cec-client -d 8 2>/dev/null | while IFS= read -r line; do
+    case "$line" in
+        *">> 0f:36"*)
+            logger -t cec-listen "TV standby received, suspending"
+            systemctl suspend
+            ;;
+    esac
+done
+EOF
+  chmod 755 "${INSTALL}/usr/bin/cec-listen"
+
+  cat > "${INSTALL}/usr/lib/systemd/system/cec-listen.service" << 'EOF'
+[Unit]
+Description=CEC standby listener - powers off board when TV turns off
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/cec-listen
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+  mkdir -p "${INSTALL}/usr/lib/systemd/system/multi-user.target.wants"
+  ln -sf ../cec-listen.service \
+    "${INSTALL}/usr/lib/systemd/system/multi-user.target.wants/cec-listen.service"
 }

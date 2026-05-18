@@ -38,5 +38,11 @@
   # No Kodi — dedicated Moonlight streaming appliance
     MEDIACENTER="no"
 
+  # Strip unused system services
+    SAMBA_SUPPORT="no"
+    SAMBA_SERVER="no"
+    NFS_SUPPORT="no"
+    PULSEAUDIO_SUPPORT="no"
+
   # additional packages
     ADDITIONAL_PACKAGES+=" pciutils moonlight-qt"
