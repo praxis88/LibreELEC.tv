@@ -132,8 +132,8 @@ cec-ctl -d /dev/cec0 --playback >/dev/null 2>&1
 cec-ctl -d /dev/cec0 --monitor 2>/dev/null | while IFS= read -r line; do
     case "$line" in
         *"STANDBY"*)
-            logger -t cec-listen "TV standby received, suspending"
-            systemctl suspend
+            logger -t cec-listen "TV standby received, powering off"
+            systemctl poweroff
             ;;
     esac
 done
