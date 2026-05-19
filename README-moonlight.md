@@ -1,4 +1,4 @@
-# moonlight-qt on LibreELEC for RK3399
+# moonlight-qt on LibreELEC
 
 > **Built on the shoulders of giants.**
 > This is a fork of [LibreELEC](https://libreelec.tv) (GPL-2.0) with Kodi
@@ -7,15 +7,14 @@
 > patches, and hardware support goes to the LibreELEC team. All credit for the
 > streaming client goes to the moonlight-stream project.  
 > This repo provides only the build glue and Qt6 cross-compilation packages
-> needed to wire them together on RK3399 hardware.
+> needed to wire them together on supported hardware.
 
 Streaming appliance build: LibreELEC without Kodi, boots straight into
-moonlight-qt with hardware HEVC decode via rkvdec and direct DRM PRIME display.
+moonlight-qt with hardware HEVC decode and direct DRM PRIME display.
 
-Developed on a **RockPro64**, but the build is largely universal across all
-RK3399 boards — rkvdec, the VOP display controller, and Panfrost are all
-SoC-level hardware shared by every RK3399 device. See
-[Board-specific settings](#board-specific-settings) below.
+Supported targets:
+- **RK3399** (`moonlight-qt` branch) — RockPro64 and other RK3399 boards, hardware decode via rkvdec
+- **Raspberry Pi 5** (`moonlight-qt-rpi5` branch) — RPi5, hardware decode via rpivid/bcm2835-codec
 
 ---
 
@@ -48,8 +47,7 @@ LibreELEC.tv/           LibreELEC build system (forked)
   packages/multimedia/
     qt6-host/           Qt 6.5.3 host tools (moc, qmake6, qsb) — builds on x86_64
     qt6/                Qt 6.5.3 target libs — aarch64, EGLFS+KMS+GBM+GLES2
-    qt6-host/
-    moonlight-qt/       moonlight-qt 6.1.0 + systemd service
+    moonlight-qt/       moonlight-qt 6.1.0 + systemd service + CEC listener
     SDL2/               SDL2 2.30.2 (for gamepad + audio backend)
     SDL2_ttf/           SDL2_ttf 2.20.2 (OSD font rendering)
     moonlight-common-c-qt/  } submodule source packages
@@ -57,11 +55,10 @@ LibreELEC.tv/           LibreELEC build system (forked)
     qmdnsengine/        }
     h264bitstream/      }
     SDL_GameControllerDB-qt/ }
-  projects/Rockchip/devices/RK3399/options   <- build config
+  projects/Rockchip/devices/RK3399/options   <- RK3399 build config
+  projects/RPi/devices/RPi5/options          <- RPi5 build config
 
-moonlight-qt/           moonlight-qt source (reference/submodule inspection)
-moonlight-embedded/     old moonlight-embedded (not used in final image)
-Luna/                   Kodi addon (not used — no Kodi in this build)
+moonlight-embedded/     moonlight-embedded fork with FFmpeg DRM PRIME backend
 ```
 
 ---
@@ -120,6 +117,8 @@ See [Configuration](#configuration) for how to apply runtime overrides.
 
 ## Building the image
 
+### RK3399 (`moonlight-qt` branch)
+
 Change `UBOOT_SYSTEM` to match your board:
 
 ```bash
@@ -138,13 +137,35 @@ docker run --name le-build --rm \
 
 Output lands in `target/LibreELEC-RK3399.aarch64-12.2-devel-*.img.gz`.
 
+### Raspberry Pi 5 (`moonlight-qt-rpi5` branch)
+
+```bash
+cd LibreELEC.tv
+
+docker run --name le-build --rm \
+  -v "$(pwd)":/build -w /build \
+  -e PROJECT=RPi \
+  -e DEVICE=RPi5 \
+  -e ARCH=aarch64 \
+  -e MTPROGRESS=yes \
+  libreelec \
+  make image
+```
+
+Output lands in `target/LibreELEC-RPi5.aarch64-12.2-devel-*.img.gz`.
+
 **First build time:** ~2-3 hours (Qt6 host + Qt6 target are the long poles).  
 **Incremental builds:** A few minutes — only changed packages rebuild.
 
 To force a single package to rebuild:
 ```bash
+# RK3399
 rm -rf build.LibreELEC-RK3399.aarch64-12.2-devel/.stamps/<package-name>
 rm -rf build.LibreELEC-RK3399.aarch64-12.2-devel/build/<package-name>-<version>
+
+# RPi5
+rm -rf build.LibreELEC-RPi5.aarch64-12.2-devel/.stamps/<package-name>
+rm -rf build.LibreELEC-RPi5.aarch64-12.2-devel/build/<package-name>-<version>
 ```
 
 ---
@@ -153,12 +174,7 @@ rm -rf build.LibreELEC-RK3399.aarch64-12.2-devel/build/<package-name>-<version>
 
 ```bash
 # Decompress and write to SD card or eMMC (replace sdX with your device)
-unpigz -c target/LibreELEC-RK3399.aarch64-12.2-devel-*.img.gz | dd of=/dev/sdX bs=4M status=progress
-```
-
-Or one-liner:
-```bash
-zcat target/*.img.gz | dd of=/dev/sdX bs=4M status=progress
+unpigz -c target/*.img.gz | sudo dd of=/dev/sdX bs=4M
 ```
 
 ---
