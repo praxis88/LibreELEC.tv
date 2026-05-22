@@ -3,10 +3,10 @@
 
 PKG_NAME="wireguard-tools"
 PKG_VERSION="1.0.20250521"
-PKG_SHA256="6afe492647c3b0b2f68ab6df524e9e4290d03c34c3027e069e5bbc486949960e"
+PKG_SHA256="aa502f511aa3ce8b5e79b86f21a0e7b8589591d142b28d2b26cf1996f725cd69"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://www.wireguard.com"
-PKG_URL="https://git.zx2c4.com/wireguard-tools/snapshot/wireguard-tools-v${PKG_VERSION}.tar.xz"
+PKG_URL="https://github.com/WireGuard/wireguard-tools/archive/refs/tags/v${PKG_VERSION}.tar.gz"
 PKG_DEPENDS_TARGET="toolchain linux"
 PKG_NEED_UNPACK="${LINUX_DEPENDS}"
 PKG_LONGDESC="WireGuard VPN userspace tools"
