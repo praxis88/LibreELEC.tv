@@ -19,7 +19,7 @@
     LINUX="raspberrypi"
 
   # use framebuffer console
-    EXTRA_CMDLINE="console=tty0 ssh"
+    EXTRA_CMDLINE="console=tty0"
 
 ################################################################################
 # setup build defaults

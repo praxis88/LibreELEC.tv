@@ -39,7 +39,7 @@
     DEBUG_TTY="/dev/ttyAMA10"
 
   # serial console
-    EXTRA_CMDLINE="console=ttyAMA10,115200 console=tty0"
+    EXTRA_CMDLINE="console=ttyAMA10,115200 console=tty0 ssh"
 
   # No Kodi — dedicated Moonlight streaming appliance
     MEDIACENTER="no"
