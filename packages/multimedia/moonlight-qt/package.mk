@@ -110,7 +110,7 @@ Environment=QML_IMPORT_PATH=/usr/qml
 Environment=QML2_IMPORT_PATH=/usr/qml
 Environment=QT_QPA_FONTDIR=/usr/share/fonts/liberation
 Environment=QT_SCALE_FACTOR=2
-Environment=AUDIODEV=hw:1,0
+Environment=AUDIODEV=hdmi:CARD=vc4hdmi1,DEV=0
 Environment=SDL_VIDEODRIVER=offscreen
 ExecStartPre=/bin/sh -c 'mkdir -p /storage/.config && [ -f /storage/.config/moonlight-kms.json ] || printf '"'"'{"device":"/dev/dri/card1","outputs":[{"name":"HDMI-A-2"}]}'"'"' > /storage/.config/moonlight-kms.json'
 ExecStart=/usr/bin/moonlight
